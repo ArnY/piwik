@@ -358,9 +358,8 @@ class Pdf extends ReportRenderer
                         }
                     }
                     $text = $this->formatText($text);
-                    $text = trim($text);
                     $nbLine=substr_count($text,"\n") + 1;
-                   $this->TCPDF->MultiCell($this->labelCellWidth, $this->cellHeight * $nbLine, $text, 'LR', 'L', $fill,0,'','',true,0,false,true,$this->cellHeight * $nbLine,"M");
+                    $this->TCPDF->MultiCell($this->labelCellWidth, $this->cellHeight * $nbLine, $text, 'LR', 'L', $fill,0,'','',true,0,false,true,$this->cellHeight * $nbLine,"M");
 
                     if ($isLogoDisplayable) {
                         if (isset($rowMetadata['logoWidth'])) {
