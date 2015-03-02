@@ -352,14 +352,15 @@ class Pdf extends ReportRenderer
                     $posX = $this->TCPDF->GetX();
                     $posY = $this->TCPDF->GetY();
                     if (isset($rowMetrics[$columnId])) {
-                        $text = substr($rowMetrics[$columnId], 0, $this->truncateAfter);
+                        $text = wordwrap($rowMetrics[$columnId],$this->truncateAfter);
                         if ($isLogoDisplayable) {
                             $text = $leftSpacesBeforeLogo . $text;
                         }
                     }
                     $text = $this->formatText($text);
-
-                    $this->TCPDF->Cell($this->labelCellWidth, $this->cellHeight, $text, 'LR', 0, 'L', $fill, $url);
+                    $text = trim($text);
+                    $nbLine=substr_count($text,"\n") + 1;
+                   $this->TCPDF->MultiCell($this->labelCellWidth, $this->cellHeight * $nbLine, $text, 'LR', 'L', $fill,0,'','',true,0,false,true,$this->cellHeight * $nbLine,"M");
 
                     if ($isLogoDisplayable) {
                         if (isset($rowMetadata['logoWidth'])) {
@@ -389,7 +390,7 @@ class Pdf extends ReportRenderer
                     if (empty($rowMetrics[$columnId])) {
                         $rowMetrics[$columnId] = 0;
                     }
-                    $this->TCPDF->Cell($this->cellWidth, $this->cellHeight, $rowMetrics[$columnId], 'LR', 0, 'L', $fill);
+                    $this->TCPDF->Cell($this->cellWidth, $this->cellHeight * $nbLine, $rowMetrics[$columnId], 'LR', 0, 'L', $fill);
                 }
             }
 
