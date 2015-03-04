@@ -336,7 +336,8 @@ class Pdf extends ReportRenderer
         $logoHeight = $this->logoHeight;
 
         $rowsMetadata = $this->reportRowsMetadata->getRows();
-
+        $nbtotalline=0;
+        $tablepage = 1;
         // Draw a body of report table
         foreach ($this->report->getRows() as $rowId => $row) {
             $rowMetrics = $row->getColumns();
@@ -344,6 +345,7 @@ class Pdf extends ReportRenderer
             if (isset($rowMetadata['url'])) {
                 $url = $rowMetadata['url'];
             }
+
             foreach ($this->reportColumns as $columnId => $columnName) {
                 // Label column
                 if ($columnId == 'label') {
@@ -352,14 +354,21 @@ class Pdf extends ReportRenderer
                     $posX = $this->TCPDF->GetX();
                     $posY = $this->TCPDF->GetY();
                     if (isset($rowMetrics[$columnId])) {
-                        $text = substr($rowMetrics[$columnId], 0, $this->truncateAfter);
+                        $text = wordwrap($rowMetrics[$columnId],$this->truncateAfter);
                         if ($isLogoDisplayable) {
                             $text = $leftSpacesBeforeLogo . $text;
                         }
                     }
                     $text = $this->formatText($text);
-
-                    $this->TCPDF->Cell($this->labelCellWidth, $this->cellHeight, $text, 'LR', 0, 'L', $fill, $url);
+                    $nbLine=substr_count($text,"\n") + 1;
+                    if($nbtotalline+$nbLine > 28 || ($tablepage==1 && $nbtotalline+$nbLine > 25)) {
+                        $this->TCPDF->AddPage();
+                        $tablepage++;
+                        $nbtotalline=0;
+                    }
+                    $nbtotalline=$nbtotalline+$nbLine;
+                    $this->TCPDF->MultiCell($this->labelCellWidth, $this->cellHeight * $nbLine, $text.' ('.$nbtotalline.')', 'LR', 'L', $fill,0,'','',true,0,false,true,$this->cellHeight * $nbLine,"M");
+                    //$this->TCPDF->writeHTMLCell($this->labelCellWidth, $this->cellHeight * $nbLine,$posX,$posY,$text,'LR',0,$fill,false,'L');
 
                     if ($isLogoDisplayable) {
                         if (isset($rowMetadata['logoWidth'])) {
@@ -389,7 +398,7 @@ class Pdf extends ReportRenderer
                     if (empty($rowMetrics[$columnId])) {
                         $rowMetrics[$columnId] = 0;
                     }
-                    $this->TCPDF->Cell($this->cellWidth, $this->cellHeight, $rowMetrics[$columnId], 'LR', 0, 'L', $fill);
+                    $this->TCPDF->Cell($this->cellWidth, $this->cellHeight * $nbLine, $rowMetrics[$columnId], 'LR', 0, 'L', $fill);
                 }
             }
 
